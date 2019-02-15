@@ -1,0 +1,9 @@
+{
+  "host": "roborio-862-frc.local",
+  "port": 22,
+  "username": "admin",
+  "logPathExternal": "/u/log",
+  "logPathInternal": "/home/lvuser/log",
+  "logPath": "/u/log",
+  "localLogPath": "~/Documents/logs"
+}

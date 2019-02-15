@@ -1,0 +1,75 @@
+<!DOCTYPE html> <!-- The new doctype -->
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Lightning 862 Roborio</title>
+        <link rel="stylesheet" type="text/css" href="css/styles.css" />
+    </head>
+    
+    <body>
+    	
+    	<section id="page"> <!-- Defining the #page section with the section tag -->
+    
+            <header> <!-- Defining the header section of the page with the appropriate tag -->
+            
+                <hgroup>
+                    <h1>Lighting FRC 862</h1>
+                    <h3 id='status'></h3>
+                </hgroup>
+                                
+                <nav class="clear"> <!-- The nav link semantically marks your main site navigation -->
+                    <ul>
+                        <li><a class="sync" href="#">Sync</a></li>
+                        <li><a class="flush-robot" href="#">Flush<br>Robot</a></li>
+                        <li><a class="flush-local" href="#">Flush<br>Local</a></li>
+                    </ul>
+                </nav>
+            
+            </header>
+            
+            <section id="articles">
+
+                <div class="line"></div>
+                
+                <article id="article1"> <!-- The new article tag. The id is supplied so it can be scrolled into view. -->
+                    <h2>Graph Log Archive</h2>
+                    
+                    <div class="line"></div>
+                    
+                    <div class="articleBody clear">
+                        <select id="lognames" name="Data Set" onChange="changeData(this.value)">
+                        </select>
+                        <div class="line"></div>
+  
+                        <div id="graph1" style="width:100%; height: 700px;"></div>
+
+                    </div>
+                </article>
+
+            </section>
+
+        <footer> <!-- Marking the footer section -->
+
+           <div class="line"></div>
+           
+           <p>Copyright <script>document.write(new Date().getFullYear())</script> - Lightning Robotics</p>
+           
+        </footer>
+            
+		</section> <!-- Closing the #page section -->
+        
+        <!-- JavaScript Includes -->
+        <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+        <script src="js/jquery-3.3.1.min.js"></script>
+        <script src="js/highcharts.js"></script>
+        <script src="js/modules/boost.js"></script>
+        <script src="js/modules/data.js"></script>
+        <script src="js/modules/series-label.js"></script>
+        <script src="js/modules/exporting.js"></script>
+        <script src="js/modules/export-data.js"></script>        
+        <script src="js/themes/dark-unica.js"></script>        
+
+        <script src="js/newchart.js"></script>        
+    </body>
+</html>
+

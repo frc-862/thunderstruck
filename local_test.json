@@ -1,0 +1,8 @@
+{
+  "host": "192.168.25.3",
+  "port": 22,
+  "username": "phurley",
+  "password": "cdpjjh/6760",
+  "logPath": "/Users/phurley/wedliv",
+  "localLogPath": "~/Documents/logs"
+}

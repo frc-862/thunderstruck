@@ -1,0 +1,7 @@
+#!/usr/local/bin/bash
+
+electron-packager . --platform=darwin --overwrite
+electron-packager . --platform=win32 --overwrite
+electron-packager . --platform=linux --overwrite
+cp thunderstruck.json thunderstruck-win32-x64
+cp thunderstruck.json thunderstruck-darwin-x64
