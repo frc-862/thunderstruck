@@ -5,5 +5,5 @@
   "logPathExternal": "/u/log",
   "logPathInternal": "/home/lvuser/log",
   "logPath": "/u/log",
-  "localLogPath": "~/Documents/logs"
+  "localLogPath": "/Users/phurley/Documents/logs"
 }

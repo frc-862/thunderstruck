@@ -2,7 +2,9 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>Lightning 862 Roborio</title>
+        <title>Thunderstruck by FRC Lightning 862</title>
+        <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
         <link rel="stylesheet" type="text/css" href="css/styles.css" />
     </head>
     
@@ -13,15 +15,15 @@
             <header> <!-- Defining the header section of the page with the appropriate tag -->
             
                 <hgroup>
-                    <h1>Lighting FRC 862</h1>
+                    <h1>Thunderstruck - FRC 862</h1>
                     <h3 id='status'></h3>
                 </hgroup>
                                 
                 <nav class="clear"> <!-- The nav link semantically marks your main site navigation -->
                     <ul>
-                        <li><a class="sync" href="#">Sync</a></li>
-                        <li><a class="flush-robot" href="#">Flush<br>Robot</a></li>
-                        <li><a class="flush-local" href="#">Flush<br>Local</a></li>
+                        <li><a class='exec' id="flush-robot" href="#">Flush<br>Robot</a></li>
+                        <li><a class='exec' id="flush-local" href="#">Flush<br>Local</a></li>
+                        <li><a class='exec' id="config" href="#">Config</a></li>
                     </ul>
                 </nav>
             
@@ -37,12 +39,19 @@
                     <div class="line"></div>
                     
                     <div class="articleBody clear">
-                        <select id="lognames" name="Data Set" onChange="changeData(this.value)">
-                        </select>
-                        <div class="line"></div>
-  
-                        <div id="graph1" style="width:100%; height: 700px;"></div>
+                      <select class='exec' id="logfolders" name="Data Folder" onChange="changeData(this.value)">
+                      </select>
+                      <select class='exec' id="lognames" name="Data Set" onChange="changeData(this.value)">
+                      </select>
+                      <select class='exec' id="remotenames" name="Remote Logs" onChange="changeData(this.value)">
+                        <option>*** Loading Remote Logs ***</option>
+                      </select>
 
+                      <button class='exec' id='loadremote'>Load Remote Log</button>  
+                      <button class='exec' id='syncremote'>Refresh Remote Files</button>  
+
+                      <div class="line"></div>
+                      <div id="graph1" style="width:100%; height: 700px;"></div>
                     </div>
                 </article>
 
@@ -59,6 +68,7 @@
 		</section> <!-- Closing the #page section -->
         
         <!-- JavaScript Includes -->
+        <script>console.log("here we go")</script>
         <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
         <script src="js/jquery-3.3.1.min.js"></script>
         <script src="js/highcharts.js"></script>

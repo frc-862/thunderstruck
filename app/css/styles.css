@@ -271,3 +271,21 @@ input[type='checkbox'] {
 	transform: scale(1.5);
 	margin-right: 8px;
 }
+
+select {
+  padding: 5px 5px;
+  display: inline-block;
+  font-size: 12px;
+}
+button {
+  /*background-color: #4CAF50; [> Green <]*/
+  background-color: #777;
+  border: 2px solid #ccc;
+  color: white;
+  padding: 5px 5px;
+  margin: 0px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 12px;
+}

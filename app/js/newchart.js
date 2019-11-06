@@ -10,6 +10,7 @@ var data = [];
 var ws = undefined;
 var chart = undefined;
 
+console.log(electron)
 function change(el) {
 }
 
@@ -107,7 +108,7 @@ function configureChart(fname) {
 }
 
 function refresh_lognames() {
-  const logFolder = path.join(app.getPath('documents'), "logs")
+  const logFolder = electron.getGlobal("config").localLogPath;
   console.log("refresh_lognames: " + logFolder)
 
   let first = undefined
@@ -123,6 +124,10 @@ function refresh_lognames() {
         configureChart(url)
       }
     });
+
+    if (first === undefined) {
+      $("#lognames").append('<option value="">No logfiles available</option>')
+    }
   })
 }
 
@@ -140,24 +145,16 @@ $(document).ready(function () {
   })
 
   ipcRenderer.on('percent', (event, arg) => {
-    if (arg == 1.0) {
-       $("#status").text('')
+    if (arg.percent >= 1.0) {
+       $("#status").text('Sync complete')
     } else {
-       $("#status").text(`Progress ${Math.round(arg * 100)}%`)
+       $("#status").text(`Progress ${Math.round(arg.percent * 100)}% - ${arg.file}`)
     }
   })
 
-  $(".sync").click(function() {
-    ipcRenderer.send('sync-robot')
+  console.log("setting up")
+  $(".exec").click(function() {
+    ipcRenderer.send(this.id, this)
   })
-
-  $(".flush-local").click(function() {
-    ipcRenderer.send('flush-local', "flush")
-  })
-
-  $(".flush-robot").click(function() {
-    ipcRenderer.send('flush-robot', "flush")
-  })
-
 });
 
