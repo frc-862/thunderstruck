@@ -106,7 +106,7 @@ function configureChart(fname) {
   })
 }
 
-function refresh_lognames() {
+function refresh_lognames(fname) {
   console.log("sub dir: " + $("#logfolders").val())
 
   const baseFolder = electron.getGlobal("config").localLogPath;
@@ -130,7 +130,7 @@ function refresh_lognames() {
     console.log("refresh_lognames: " + logFolder)
 
     let first = undefined
-    const currentLog = $("#lognames").val()
+    let currentLog = $("#lognames").val()
 
     fs.readdir(logFolder, (err, listings) => {
       $("#lognames").empty()
@@ -143,7 +143,12 @@ function refresh_lognames() {
         $("#lognames").append(`<option value="${url}">${file}</option>`)
         if (first === undefined) {
           first = url
-          //configureChart(url)
+        }
+
+        if (fname != undefined && fname == file) {
+          first = url
+          currentLog = undefined
+          configureChart(url)
         }
       });
 
@@ -151,7 +156,7 @@ function refresh_lognames() {
         $("#lognames").append('<option value="">No logfiles available</option>')
       }
 
-      if (currentLog != "") {
+      if (currentLog != undefined && currentLog != "") {
         console.log("Update currentlog: " + currentLog);
         const opt = $(`#lognames option[value="${currentLog}"]`)
         if (opt.length >= 1) {
@@ -190,6 +195,15 @@ $(document).ready(function () {
   $(".exec").click(function() {
     console.log("ID: " + this.id);
     ipcRenderer.send(this.id, this);
+  })
+
+  $("#loadremote").click(() => {
+    ipcRenderer.send('loadremote', $("#remotenames").val(), $("#logfolders").val())
+  })
+
+  ipcRenderer.on('loadremote', (event, fname, dest) => {
+    console.log(`We copied ${fname} into ${dest}`)
+    refresh_lognames(fname)
   })
 
   ipcRenderer.on('newFolders', (event, arg) => {

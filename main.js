@@ -1,6 +1,6 @@
 // Modules to control application life and create native browser window
 const electron = require('electron')
-const {app, session, ipcMain, BrowserWindow, shell} = electron
+const {app, session, ipcMain, BrowserWindow, shell, dialog} = electron
 
 const path = require('path')
 const ssh = require('ssh2').Client
@@ -20,14 +20,6 @@ let config = readConfig();
 global.config = config
 
 fs.mkdirSync(config.localLogPath, { recursive: true })
-
-sshcmd("ls -1", (err, result) => {
-  if (err) {
-    console.log("Error: " + err);
-  } else {
-    console.log(result);
-  }
-})
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -82,16 +74,16 @@ ipcMain.on('config', (event, arg) => {
   shell.openItem(configFileName) 
 })
 
-ipcMain.on('logfolders', (event, arg) => {
-  console.log("logfolders");
-})
-
-ipcMain.on('remotenames', (event, arg) => {
-  console.log("remotenames");
-})
-
-ipcMain.on('loadremote', (event, arg) => {
-  console.log("loadremote");
+ipcMain.on('loadremote', (event, fname, dest) => {
+  from = { ...sshconn }
+  from.path = `${path.join(config.remoteLogPath, fname)}`
+  scp.scp(from, dest + "/", function(err) {
+    if (err) {
+      console.log("SCP Error: " + err)
+    } else {
+      event.sender.send('loadremote', fname, dest)
+    }
+  })
 })
 
 const isDir = /^d/;
@@ -101,7 +93,7 @@ ipcMain.on('syncremote', (event, arg) => {
       const listing = results.split("\n");
       const files = listing.
         filter(str => !isDir.test(str)).
-        map(s => s.substring(53)).
+        map(s => s.substring(51)).
         filter(s => s.length > 0);
 
       event.sender.send('updateRemoteFiles', files);
@@ -110,33 +102,54 @@ ipcMain.on('syncremote', (event, arg) => {
 })
 
 ipcMain.on('flush-local', (event, arg) => {
-  console.log('flushing local files')
+  const options = {
+    type: 'warning',
+    buttons: ['Yes', 'No'],
+    defaultId: 1,
+    title: 'Question',
+    message: 'Are you sure you really want to delete all the log files on this computer?',
+    detail: 'Once they are gone; they are gone.'
+  };
 
-  const logDir = config["localLogPath"]
-  fs.readdir(logDir, (err, files) => {
-    unlink_list(files, () => {
-      console.log('local flush complete')
-      event.sender.send('refresh', '')
-    })
-  })
-})
+  let result = dialog.showMessageBox(null, options)
+  result.then(resp => {
+    if (resp.response == 0) {
+      console.log('flushing local files')
 
-ipcMain.on('sync-robot', (event, arg) => {
-  console.log('sync logs with robot')
-  event.sender.send('refresh', '')
-  syncFiles(() => {
-    console.log('sync with roborio complete')
-    event.sender.send('refresh', '')
+      const logDir = config.localLogPath
+      fs.readdir(logDir, (err, files) => {
+        files = files.map(f => path.join(logDir, f))
+        unlink_list(files, () => {
+          console.log('local flush complete')
+          event.sender.send('refresh', '')
+        })
+      })
+    }
   })
 })
 
 ipcMain.on('flush-robot', (event, arg) => {
-  console.log('flushing robot files')
-  flush_robot_log_files((err, result) => {
-    if (!err) {
-      event.sender.send('refresh', '')
+  const options = {
+    type: 'warning',
+    buttons: ['Yes', 'No'],
+    defaultId: 1,
+    title: 'Question',
+    message: 'Are you sure you really want to delete all the log files on the robot?',
+    detail: 'Once they are gone; they are gone.'
+  };
+
+  let result = dialog.showMessageBox(null, options)
+  result.then(resp => {
+    if (resp.response == 0) {
+      console.log("Flushing logs")
+      flush_robot_log_files((err, result) => {
+        if (!err) {
+          event.sender.send('refresh', '')
+        }
+      })
     }
   })
+
 })
 
 function createWindow () {
@@ -157,7 +170,7 @@ function createWindow () {
       ////preload: renderer
     }
   })
-  mainWindow.webContents.openDevTools()
+  //mainWindow.webContents.openDevTools()
 
   //session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     //callback({ responseHeaders: Object.assign({
@@ -198,11 +211,9 @@ function unlink_list(list, done) {
       done()
     }
   } else {
-    const logDir = config["localLogPath"]
     const fname = list.shift()
-    //console.log(`unlink('${fname}')`)
 
-    fs.unlink(path.join(logDir, fname), () => {
+    fs.unlink(fname, () => {
       unlink_list(list, done)
     })
   }
@@ -285,7 +296,6 @@ function copyList(list, source, dest, done) {
 }
 
 function sshcmd(cmd, done) {
-  console.log(`Execute ${cmd}`)
   let result = ''
 
   try {
