@@ -1,4 +1,3 @@
-
 const electron = require('electron').remote
 const {app} = electron
 const path = electron.require('path')
@@ -108,35 +107,70 @@ function configureChart(fname) {
 }
 
 function refresh_lognames() {
-  const logFolder = electron.getGlobal("config").localLogPath;
-  console.log("refresh_lognames: " + logFolder)
+  console.log("sub dir: " + $("#logfolders").val())
 
-  let first = undefined
-  fs.readdir(logFolder, (err, files) => {
-    $("#lognames").empty()
-    files.sort()
-    files.forEach(file => {
-      const url = `file://${path.join(logFolder, file)}`
+  const baseFolder = electron.getGlobal("config").localLogPath;
+  fs.readdir(baseFolder, (err, listings) => {
+    const currentDir = $("#logfolders").val()
 
-      $("#lognames").append(`<option value="${url}">${file}</option>`)
-      if (first === undefined) {
-        first = file
-        configureChart(url)
-      }
+    listings.sort()
+    let dirs = listings.filter(fn => fs.statSync(path.join(baseFolder, fn)).isDirectory())
+
+    $("#logfolders").empty();
+    $("#logfolders").append(`<option value="${baseFolder}">.</option>`)
+    dirs.forEach(d => {
+      $("#logfolders").append(`<option value="${path.join(baseFolder, d)}">${d}</option>`)
     });
 
-    if (first === undefined) {
-      $("#lognames").append('<option value="">No logfiles available</option>')
+    if (currentDir != '.') {
+      $(`#logfolders option[value="${currentDir}"]`).prop("selected", "selected");
     }
-  })
+
+    const logFolder = $("#logfolders").val()
+    console.log("refresh_lognames: " + logFolder)
+
+    let first = undefined
+    const currentLog = $("#lognames").val()
+
+    fs.readdir(logFolder, (err, listings) => {
+      $("#lognames").empty()
+      listings.sort()
+      let files = listings.filter(fn => fs.statSync(path.join(logFolder, fn)).isFile())
+
+      files.forEach(file => {
+        const url = `file://${path.join(logFolder, file)}`
+
+        $("#lognames").append(`<option value="${url}">${file}</option>`)
+        if (first === undefined) {
+          first = url
+          //configureChart(url)
+        }
+      });
+
+      if (first === undefined) {
+        $("#lognames").append('<option value="">No logfiles available</option>')
+      }
+
+      if (currentLog != "") {
+        console.log("Update currentlog: " + currentLog);
+        const opt = $(`#lognames option[value="${currentLog}"]`)
+        if (opt.length >= 1) {
+          console.log("found currentlog: " + currentLog);
+          opt.prop("selected", "selected");
+          first = undefined;
+        }
+      } 
+
+      if (first) {
+        console.log("Update chart");
+        changeData(first);
+      }
+
+    })
+  });
 }
 
 $(document).ready(function () {
-  const logFolder = path.join(app.getPath('documents'), "logs")
-  console.log("PTH Log Folder: " + logFolder)
-
-  ipcRenderer.send('pth', 'it works')
-
   refresh_lognames()
 
   ipcRenderer.on('refresh', (event, arg) => { 
@@ -154,7 +188,25 @@ $(document).ready(function () {
 
   console.log("setting up")
   $(".exec").click(function() {
-    ipcRenderer.send(this.id, this)
+    console.log("ID: " + this.id);
+    ipcRenderer.send(this.id, this);
   })
+
+  ipcRenderer.on('newFolders', (event, arg) => {
+    console.log("update folders");
+    console.log(event);
+    console.log(arg);
+  });
+
+  ipcRenderer.on('updateRemoteFiles', (event, files) => {
+    $("#remotenames").empty()
+    if (files.length == 0) {
+      $("#remotenames").append(`<option value="">*** No remote logs found ***</option>`)
+    } else {
+      files.forEach(fn => {
+        $("#remotenames").append(`<option value="${fn}">${fn}</option>`)
+      });
+    }
+  });
 });
 

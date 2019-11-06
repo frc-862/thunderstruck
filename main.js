@@ -82,6 +82,33 @@ ipcMain.on('config', (event, arg) => {
   shell.openItem(configFileName) 
 })
 
+ipcMain.on('logfolders', (event, arg) => {
+  console.log("logfolders");
+})
+
+ipcMain.on('remotenames', (event, arg) => {
+  console.log("remotenames");
+})
+
+ipcMain.on('loadremote', (event, arg) => {
+  console.log("loadremote");
+})
+
+const isDir = /^d/;
+ipcMain.on('syncremote', (event, arg) => {
+  sshcmd(`ls -l ${config.remoteLogPath} | cat`,(err, results) => {
+    if (results) {
+      const listing = results.split("\n");
+      const files = listing.
+        filter(str => !isDir.test(str)).
+        map(s => s.substring(53)).
+        filter(s => s.length > 0);
+
+      event.sender.send('updateRemoteFiles', files);
+    }
+  });
+})
+
 ipcMain.on('flush-local', (event, arg) => {
   console.log('flushing local files')
 

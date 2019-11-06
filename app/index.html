@@ -39,11 +39,12 @@
                     <div class="line"></div>
                     
                     <div class="articleBody clear">
-                      <select class='exec' id="logfolders" name="Data Folder" onChange="changeData(this.value)">
+                      <select id="logfolders" name="Data Folder" onChange="refresh_lognames()">
+                        <option>.</option>
                       </select>
-                      <select class='exec' id="lognames" name="Data Set" onChange="changeData(this.value)">
+                      <select id="lognames" name="Data Set" onChange="changeData(this.value)">
                       </select>
-                      <select class='exec' id="remotenames" name="Remote Logs" onChange="changeData(this.value)">
+                      <select id="remotenames" name="Remote Logs">
                         <option>*** Loading Remote Logs ***</option>
                       </select>
 

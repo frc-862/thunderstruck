@@ -276,7 +276,9 @@ select {
   padding: 5px 5px;
   display: inline-block;
   font-size: 12px;
+  width: 200px;
 }
+
 button {
   /*background-color: #4CAF50; [> Green <]*/
   background-color: #777;
